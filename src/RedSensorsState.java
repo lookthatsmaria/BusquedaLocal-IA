@@ -11,20 +11,50 @@ public class RedSensorsState {
     public RedSensorsState(int ncent, int nsens, int seedc, int seeds){
         datacenters = new CentrosDatos(ncent, seedc);
         sensors = new Sensores(nsens, seeds);
-        m = nsens;
-        n = ncent+nsens;
-        map = new int[n][m];
-        dist = new double[n][m];
-        for(int i = 0; i < n; ++i){
+        n = ncent;
+        m = ncent+nsens;
+        map = new int[m][m];
+        dist = new double[m][m];
+        int X1, Y1, X2,  Y2;
+        for(int i = 0; i < m; ++i){
+            System.out.print("fila: "+i+" ");
+            if (i < ncent) {X1 = datacenters.get(i).getCoordX(); Y1 = datacenters.get(i).getCoordY(); }
+            else { X1 = sensors.get(i-ncent).getCoordX(); Y1 = sensors.get(i-ncent).getCoordY(); }
             for(int j = 0; j < m; ++j){
-                map[i][j] = 0;
-                if (i == j) dist[i][j] = 0;
-                else if (i < ncent) dist[i][j]=distance(datacenters.get(i).getCoordX(), datacenters.get(i).getCoordY(), sensors.get(j).getCoordX(), sensors.get(j).getCoordY());
-                else dist[i][j]=distance(sensors.get(i-ncent).getCoordX(), sensors.get(i-ncent).getCoordY(), sensors.get(j).getCoordX(), sensors.get(j).getCoordY());
-            }
-        }
-        System.out.println(datacenters.size());
+                if (i == j || (i < ncent && j < ncent)) {dist[i][j] = 0; map[i][j]=0;}
+                else {
+                    if (i < ncent) {
+                        map[i][j] = 0;
+                        dist[i][j] = 0;
+                    }
+                    else {
+                        if (j < ncent) {
+                            X2 = datacenters.get(j).getCoordX();
+                            Y2 = datacenters.get(j).getCoordY();
+                            if ((i < (25+ncent)+j*25) && (i >= (25+ncent)+(j-1)*25)) map[i][j] = 1;
+                            else map[i][j] = 0;
+                        }
+                        else {
+                            X2 = sensors.get(j - ncent).getCoordX();
+                            Y2 = sensors.get(j - ncent).getCoordY();
+                            if (i > ((25*ncent)+ncent) && connexions_sensor(j) <= 3) map[i][j] = 1;
+                            else map[i][j] = 0;
+                        }
+                        dist[i][j] = distance(X1, Y1, X2, Y2);
+                    }
+                }
 
+                System.out.print(map[i][j]);
+            }
+            System.out.println("");
+        }
+
+    }
+
+    public int connexions_sensor(int j){
+        int sum = 0;
+        for(int i = m-n; i < m; ++i) sum+=map[i][j];
+        return sum;
     }
 
     public double distance(int X1, int Y1, int X2, int Y2){
