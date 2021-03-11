@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="RedSensores1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/RedSensores.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

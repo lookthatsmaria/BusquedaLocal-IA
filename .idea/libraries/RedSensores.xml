@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="RedSensores">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/RedSensores/RedSensores/package-search-index.zip!/" />
+      <root url="jar://$PROJECT_DIR$/RedSensores/RedSensores/RedSensores.jar!/" />
+      <root url="jar://$PROJECT_DIR$/RedSensores/RedSensores/member-search-index.zip!/" />
+      <root url="jar://$PROJECT_DIR$/RedSensores/RedSensores/type-search-index.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
