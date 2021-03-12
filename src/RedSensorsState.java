@@ -13,7 +13,8 @@ public class RedSensorsState {
         sensors = new Sensores(nsens, seeds);
         n = ncent;
         m = ncent+nsens;
-        map = new int[m][m];
+        map = new int[m][m]; // en vez de poner 1 y 0, poner el numero de
+        // datos transmitidos par agilizar los cálculos
         dist = new double[m][m];
         int X1, Y1, X2,  Y2;
         for(int i = 0; i < m; ++i){
@@ -37,7 +38,7 @@ public class RedSensorsState {
                         else {
                             X2 = sensors.get(j - ncent).getCoordX();
                             Y2 = sensors.get(j - ncent).getCoordY();
-                            if (i > ((25*ncent)+ncent) && connexions_sensor(j) <= 3) map[i][j] = 1;
+                            if (i >= ((25*ncent)+ncent) && ((i-100) < (3+ncent)+(j-4)*3) && ((i-100) >= (3+ncent)+(j-5)*3)) map[i][j] = 1;
                             else map[i][j] = 0;
                         }
                         dist[i][j] = distance(X1, Y1, X2, Y2);
@@ -51,14 +52,8 @@ public class RedSensorsState {
 
     }
 
-    public int connexions_sensor(int j){
-        int sum = 0;
-        for(int i = m-n; i < m; ++i) sum+=map[i][j];
-        return sum;
-    }
-
     public double distance(int X1, int Y1, int X2, int Y2){
-        return Math.sqrt(((double) X1 - (double) X2)*((double) X1 - (double) X2)+((double) Y1 - (double) Y2)*((double) Y1 - (double) Y2));
+        return ((double) X1 - (double) X2)*((double) X1 - (double) X2)+((double) Y1 - (double) Y2)*((double) Y1 - (double) Y2);
     }
 
     public double getDistance(int i, int j){
