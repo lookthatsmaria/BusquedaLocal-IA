@@ -19,10 +19,9 @@ public class RedSensorsState {
         else initialSolution2();
     }
 
-    public void initialSolution1(){ //Falta contabilizar todos los costes !! para ver si hay pérdidas o no.
+    public void initialSolution1(){
         int X1, Y1, X2,  Y2;
         for(int i = 0; i < m; ++i){
-            System.out.print("fila: "+i+"  ");
             if (i < n) {X1 = datacenters.get(i).getCoordX(); Y1 = datacenters.get(i).getCoordY(); }
             else { X1 = sensors.get(i-n).getCoordX(); Y1 = sensors.get(i-n).getCoordY(); }
             for(int j = 0; j < m; ++j){
@@ -37,22 +36,33 @@ public class RedSensorsState {
                         else {
                             X2 = sensors.get(j - n).getCoordX();
                             Y2 = sensors.get(j - n).getCoordY();
-                            if (i >= ((25*n)+n) && ((i-100) < (3+n)+(j-n)*3) && ((i-100) >= (3+n)+(j-n-1)*3)) map[i][j] = sensors.get(i-n).getCapacidad();
+                            if (i >= ((25*n)+n) && ((i-100) < (3+n)+(j-n)*3) && ((i-100) >= (3+n)+(j-n-1)*3)) {
+                                double data = sensors.get(i-n).getCapacidad();
+                                map[i][j] = data;
+                                update_volume(j, data);
+                            }
                         }
                         dist[i][j] = distance(X1, Y1, X2, Y2);
                     }
                 }
-
-                System.out.print(map[i][j]+" ");
             }
+        }
+        for (int i = 0; i < m; ++i) {
+            System.out.print("fila: " + i + " ");
+            for (int j = 0; j < m; ++j)
+                System.out.print(map[i][j] + " ");
             System.out.println("");
         }
 
     }
 
-    public void initialSolution2() { //Falta contabilizar todos los costes !! para ver si hay pérdidas o no.
-        int X1, Y1, X2, Y2;
-        for (int i = 0; i < m; ++i) {
+    public void initialSolution2(){ // falta mirar el caso en el que no se pueda evitar perdidas de datos
+        int X1, Y1, X2,  Y2;
+        boolean success = false;
+        boolean lost = false;
+        int sensor_not_connected = -1;
+        for(int i = 0; i < m; ++i) {
+            success = false;
             if (i < n) {
                 X1 = datacenters.get(i).getCoordX();
                 Y1 = datacenters.get(i).getCoordY();
@@ -68,50 +78,47 @@ public class RedSensorsState {
                         if (j < n) {
                             X2 = datacenters.get(j).getCoordX();
                             Y2 = datacenters.get(j).getCoordY();
-                            if ((i < (25 + n) + j * 25) && (i >= (25 + n) + (j - 1) * 25))
-                                map[i][j] = sensors.get(i - n).getCapacidad();
-                            dist[i][j] = distance(X1, Y1, X2, Y2);
+                            double capture = sensors.get(i - n).getCapacidad();
+                            if (canConnect(j, 25) && ((dataVolume2(j) + capture) <= (150))) {
+                                map[i][j] = capture;
+                                success = true;
+                                break;
+                            }
+                        } else {
+                            X2 = sensors.get(j - n).getCoordX();
+                            Y2 = sensors.get(j - n).getCoordY();
+                            double capture = sensors.get(i - n).getCapacidad();
+                            if (canConnect(j, 3) && ((dataVolume(j) + capture) <= (3 * sensors.get(j - n).getCapacidad()))) {
+                                map[i][j] = capture;
+                                update_volume(j, capture);
+                                success = true;
+                                break;
+                            }
                         }
+                        dist[i][j] = distance(X1, Y1, X2, Y2);
                     }
                 }
-
             }
-        }
-        int i = n * 25 + n;
-        boolean success;
-        boolean perdida = false;
-        int sensor_not_connected = -1;
-        while (i < m) {
-            success = false;
-            for (int j = n; j < m; ++j) {
-                double capture = sensors.get(i - n).getCapacidad();
-                if (canConnect(j) && ((dataVolume(j) + capture) <= (3 * sensors.get(j - n).getCapacidad()))) {
-                    System.out.println("i: " + i + " j: " + j + "    capture: " + (dataVolume(j) + capture) + "   capacity: " + (3 * sensors.get(j - n).getCapacidad())+" connection succesfull");
-                    map[i][j] = capture;
-                    success = true;
-                    break;
-                }
-            }
-            if (!perdida && !success) {
-                perdida = !success;
+            if (i >= n && !lost && !success) {
+                lost = !success;
                 sensor_not_connected = i;
             }
-            ++i;
         }
-        System.out.println("perdida: "+perdida+" sensor: "+sensor_not_connected);
-        for (i = 0; i < m; ++i) {
-            System.out.print("fila: " + i + " ");
-            for (int j = n; j < m; ++j)
-                System.out.print(map[i][j] + " ");
-            System.out.println("");
-        }
-      }
+            System.out.println("lost: "+lost+" sensor: "+sensor_not_connected);
+            for (int i = 0; i < m; ++i) {
+                System.out.print("fila: " + i + " ");
+                for (int j = 0; j < m; ++j)
+                    System.out.print(map[i][j] + " ");
+                System.out.println("");
+            }
 
-    public boolean canConnect(int j){
+    }
+
+    public boolean canConnect(int j, int limit){ //optimizar, hacer que calcule la suma a la vez
         int numConnexions = 0;
         for(int i = n; i < m; ++i){
             if (map[i][j] > 0) ++numConnexions;
-            if (numConnexions >= 3) {
+            if (numConnexions >= limit) {
                 System.out.println("no se puede conectar");
                 return false;
             }
@@ -133,20 +140,32 @@ public class RedSensorsState {
         return dist[i][j] * dataVolume(i);
     }
 
-    public double dataVolume(int j){
-        int connexions = 0;
-        double valor = 0;
-        double sum_cost = 0;
+    public double dataVolume(int i){
+        for(int j = 0; j < 4; ++j){
+            double data = map[i][j];
+            if (data > 0) return data;
+        }
+        return -1;
+    }
+
+    public double dataVolume2(int j){ //Cambiar el nombre de la función
+        // --> se podria reutilizar la matriz para guardar la suma!!
+        int sum = 0;
         for(int i = n; i < m; ++i){
-            if (connexions >= 3) break;
-            valor = map[i][j];
-            if (valor > 0) {
-                sum_cost += valor;
-                ++connexions;
+            double data = map[i][j];
+            sum += map[i][j];
+        }
+        return -1;
+    }
+    
+    public void update_volume(int i, double data){
+        for(int j = 0; j < 4; ++j){
+            if (map[i][j] > 0)
+            {
+                map[i][j] += data;
+                break;
             }
         }
-
-        return sum_cost;
     }
 
 
