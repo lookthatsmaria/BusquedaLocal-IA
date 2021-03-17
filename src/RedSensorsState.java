@@ -144,6 +144,30 @@ public class RedSensorsState {
         }
     }
 
+    public void swapConnections(int i, int j, int newc){
+        double capture = map[i][j];
+        double c;
+        if(j < n) map[j][j] -= capture;
+        else{
+            c = map[j][j];
+            int cd = (int) c;
+            map[j][cd] -= capture;
+            if (cd < n) map[cd][cd] -= capture;
+        }
+        if(newc < n){
+            map[i][newc] = capture;
+            map[newc][newc] += capture;
+        }
+        else{
+            c = map[newc][newc];
+            int cd = (int) c;
+            map[i][newc] = capture;
+            map[newc][cd] += capture;
+            if (cd < n) map[cd][cd] += capture;
+        }
+        map[i][j] = 0;
+        map[i][i] =  newc;
+    }
 
 
 }
