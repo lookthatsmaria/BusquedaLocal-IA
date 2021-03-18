@@ -20,17 +20,23 @@ public class RedSensorsState {
     }
 
     public void initialSolution1(){
-        int X1, Y1, X2,  Y2;
+        int src_X, src_Y, dst_X,  dst_Y;
         for(int i = 0; i < m; ++i){
-            if (i < n) {X1 = datacenters.get(i).getCoordX(); Y1 = datacenters.get(i).getCoordY(); }
-            else { X1 = sensors.get(i-n).getCoordX(); Y1 = sensors.get(i-n).getCoordY(); }
+            if (i < n) {
+							src_X = datacenters.get(i).getCoordX();
+							src_Y = datacenters.get(i).getCoordY();
+						}
+            else { 
+							src_X = sensors.get(i-n).getCoordX();
+							src_Y = sensors.get(i-n).getCoordY();
+						}
             for(int j = 0; j < m; ++j){
                 dist[i][j] = 0; map[i][j]=0;
                 if (i != j && (i >= n || j >= n)){
                     if (i >= n){
                         if (j < n) {
-                            X2 = datacenters.get(j).getCoordX();
-                            Y2 = datacenters.get(j).getCoordY();
+                            dst_X = datacenters.get(j).getCoordX();
+                            dst_Y = datacenters.get(j).getCoordY();
                             if ((i < (25+n)+j*25) && (i >= (25+n)+(j-1)*25)) {
                                 double capture = sensors.get(i-n).getCapacidad();
                                 map[i][j] = capture;
@@ -40,9 +46,12 @@ public class RedSensorsState {
                             }
                         }
                         else {
-                            X2 = sensors.get(j - n).getCoordX();
-                            Y2 = sensors.get(j - n).getCoordY();
-                            if (i >= ((25*n)+n) && ((i-(25*n)) < (3+n)+(j-n)*3) && ((i-(25*n)) >= (3+n)+(j-n-1)*3)) {
+                            dst_X = sensors.get(j - n).getCoordX();
+                            dst_Y = sensors.get(j - n).getCoordY();
+                            if (i >= ((25*n)+n) 
+																&& ((i-(25*n)) < (3+n)+(j-n)*3) 
+																&& ((i-(25*n)) >= (3+n)+(j-n-1)*3)) 
+														{
                                 double capture = sensors.get(i-n).getCapacidad();
                                 double c = map[j][j];
                                 int cd = (int) c;
@@ -53,7 +62,7 @@ public class RedSensorsState {
                                 break;
                             }
                         }
-                        dist[i][j] = distance(X1, Y1, X2, Y2);
+                        dist[i][j] = distance(src_X, src_Y, dst_X, dst_Y);
                     }
                 }
             }
@@ -63,14 +72,14 @@ public class RedSensorsState {
     }
 
     public void initialSolution2(){
-        int X1, Y1, X2,  Y2;
+        int src_X, src_Y, dst_X,  dst_Y;
         for(int i = 0; i < m; ++i) {
             if (i < n) {
-                X1 = datacenters.get(i).getCoordX();
-                Y1 = datacenters.get(i).getCoordY();
+                src_X = datacenters.get(i).getCoordX();
+                src_Y = datacenters.get(i).getCoordY();
             } else {
-                X1 = sensors.get(i - n).getCoordX();
-                Y1 = sensors.get(i - n).getCoordY();
+                src_X = sensors.get(i - n).getCoordX();
+                src_Y = sensors.get(i - n).getCoordY();
             }
             for (int j = 0; j < m; ++j) {
                 dist[i][j] = 0;
@@ -78,8 +87,8 @@ public class RedSensorsState {
                 if (i != j && (i >= n || j >= n)) {
                     if (i >= n) {
                         if (j < n) {
-                            X2 = datacenters.get(j).getCoordX();
-                            Y2 = datacenters.get(j).getCoordY();
+                            dst_X = datacenters.get(j).getCoordX();
+                            dst_Y = datacenters.get(j).getCoordY();
                             double capture = sensors.get(i - n).getCapacidad();
                             if (canConnect(j, 25) && ((map[j][j] + capture) <= (150))) {
                                 map[i][j] = capture;
@@ -88,12 +97,15 @@ public class RedSensorsState {
                                 break;
                             }
                         } else {
-                            X2 = sensors.get(j - n).getCoordX();
-                            Y2 = sensors.get(j - n).getCoordY();
+                            dst_X = sensors.get(j - n).getCoordX();
+                            dst_Y = sensors.get(j - n).getCoordY();
                             double capture = sensors.get(i - n).getCapacidad();
                             double c = map[j][j];
                             int cd = (int) c;
-                            if (canConnect(j, 3) && ((map[j][cd] + capture) <= (3 * sensors.get(j - n).getCapacidad())) && ((map[cd][cd] + capture) <= (150)) ) {
+                            if (canConnect(j, 3) 
+																&& ((map[j][cd] + capture) <= (3 * sensors.get(j - n).getCapacidad()))
+																&& ((map[cd][cd] + capture) <= (150)) ) 
+														{
                                 map[i][j] = capture;
                                 map[j][cd] += capture;
                                 if (cd < n) map[cd][cd] += capture;
@@ -101,7 +113,7 @@ public class RedSensorsState {
                                 break;
                             }
                         }
-                        dist[i][j] = distance(X1, Y1, X2, Y2);
+                        dist[i][j] = distance(src_X, src_Y, dst_X, dst_Y);
                     }
                 }
             }

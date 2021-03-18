@@ -1,7 +1,7 @@
 import java.util.*;
 public class Main {
     public static void main(String[] args) throws Exception {
-        RedSensorsState red = new RedSensorsState(4, 100, 1234, 4321, true);
+        RedSensorsState red = new RedSensorsState(2, 50, 1234, 4321, true);
 
     }
 }
