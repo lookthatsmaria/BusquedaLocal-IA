@@ -142,9 +142,7 @@ public class RedSensorsState {
 
     public double getCost(int i, int j){
         if (i < 0 || i >= m || j < 0 || j >= m) return -1;
-        double c = map[i][i];
-        int cd = (int) c;
-        return dist[i][j] * map[i][cd];
+        return dist[i][j] * map[i][j];
     }
 
     public void print_map(){
