@@ -23,7 +23,6 @@ public class RedSensorsState {
 					initialSolution2();
 					break;
 				case 3:
-                    System.out.println("hola");
 					initialSolutionTestLoop();
 					break;
 				default:
@@ -70,7 +69,16 @@ public class RedSensorsState {
                                 int cd = (int) c;
                                 map[i][j] = capture;
                                 map[j][cd] += capture;
-                                if (cd < n) map[cd][cd] += capture;
+                                double throughput = map[j][cd];
+                                double capacity = sensors.get(j-n).getCapacidad()*3;
+                                if (capture + throughput <= capacity) {
+                                    map[j][cd] += capture;
+                                    if (cd < n) map[cd][cd] += capture;
+                                }
+                                else {
+                                    map[j][cd] = capacity;
+                                    if (cd < n) map[cd][cd] += sensors.get(j-n).getCapacidad()*3 - throughput;
+                                }
                                 map[i][i] = j;
                                 break;
                             }
