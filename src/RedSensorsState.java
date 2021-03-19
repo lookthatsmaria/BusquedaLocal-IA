@@ -128,8 +128,19 @@ public class RedSensorsState {
             if (map[i][j] > 0) ++numConnexions;
             if (numConnexions >= limit) return false;
         }
-        return true;
+				ArrayList visited=new ArrayList();
+				visited.add((int)j);
+        return findLoop(j,visited);
     }
+		private boolean findLoop(int j, ArrayList visited){
+			int next = (int)map[j][j];
+			if(next < n) return true;
+			for(int i = 0; i < visited.size(); ++i){
+				if((int)visited.get(i) == next) return false;
+			}
+			visited.add(next);
+			return findLoop(next,visited);
+		}
 
     public double distance(int X1, int Y1, int X2, int Y2){
         return ((double) X1 - (double) X2)*((double) X1 - (double) X2)+((double) Y1 - (double) Y2)*((double) Y1 - (double) Y2);
