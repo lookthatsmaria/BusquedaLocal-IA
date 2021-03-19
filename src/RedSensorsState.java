@@ -8,15 +8,28 @@ public class RedSensorsState {
     private final double [][] dist;
     private final int n, m;
 
-    public RedSensorsState(int ncent, int nsens, int seedc, int seeds, boolean option){
+    public RedSensorsState(int ncent, int nsens, int seedc, int seeds, int option){
         datacenters = new CentrosDatos(ncent, seedc);
         sensors = new Sensores(nsens, seeds);
         n = ncent;
         m = ncent+nsens;
         map = new double[m][m];
         dist = new double[m][m];
-        if (option) initialSolution1();
-        else initialSolution2();
+		    switch (option) {
+				case 1:
+					initialSolution1();
+					break;
+				case 2:
+					initialSolution2();
+					break;
+				case 3:
+                    System.out.println("hola");
+					initialSolutionTestLoop();
+					break;
+				default:
+					initialSolution1();
+					break;
+			}
     }
 
     public void initialSolution1(){
@@ -119,8 +132,27 @@ public class RedSensorsState {
             }
         }
          print_map();
-
     }
+		public void initialSolutionTestLoop(){
+        int src_X, src_Y, dst_X,  dst_Y;
+        for(int i = n; i < m-1; ++i) {
+						src_X = sensors.get(i-n).getCoordX();
+						src_Y = sensors.get(i-n).getCoordY();
+						dst_X = sensors.get(i+1-n).getCoordX();
+						dst_Y = sensors.get(i+1-n).getCoordY();
+						dist[i][i+1] = distance(src_X, src_Y, dst_X, dst_Y);
+						map[i][i+1] = sensors.get(i-n).getCapacidad();
+						map[i][i] = i+1;
+				}
+				src_X = sensors.get(m-1-n).getCoordX();
+				src_Y = sensors.get(m-1-n).getCoordY();
+				dst_X = sensors.get(0).getCoordX();
+				dst_Y = sensors.get(0).getCoordY();
+				dist[m-1][n] = distance(src_X, src_Y, dst_X, dst_Y);
+				map[m-1][n] = sensors.get(m-1-n).getCapacidad();
+				map[m-1][m-1] = n;
+				print_map();
+		}
 
     public boolean canConnect(int j, int limit){
         int numConnexions = 0;
@@ -134,10 +166,18 @@ public class RedSensorsState {
     }
 		private boolean findLoop(int j, ArrayList visited){
 			int next = (int)map[j][j];
+			//System.out.println("j:"+j);
+            //System.out.println("next:"+next);
+            //System.out.println("n:"+n);
+            //System.out.println("m:"+m);
+            //for (int i = 0; i < visited.size(); i++) {
+            //    System.out.print(visited.get(i) + " ");
+            //}
 			if(next < n) return true;
 			for(int i = 0; i < visited.size(); ++i){
 				if((int)visited.get(i) == next) return false;
 			}
+			System.out.println(" ");
 			visited.add(next);
 			return findLoop(next,visited);
 		}
@@ -190,5 +230,12 @@ public class RedSensorsState {
         map[i][i] =  newc;
     }
 
+    public double heuristic(){return 0; }
+	public int dataCenters(){
+			return n;
+		}
+	public int size(){
+			return m;
+		}
 
 }

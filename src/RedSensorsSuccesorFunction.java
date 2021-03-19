@@ -8,7 +8,7 @@ public class RedSensorsSuccesorFunction implements SuccessorFunction{
 
     public List getSuccessors(Object state){
 
-        return retval;
+        return (List)state;
 
     }
 
