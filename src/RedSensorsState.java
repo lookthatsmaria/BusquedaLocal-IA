@@ -198,13 +198,12 @@ public class RedSensorsState {
         }
     }
 
-    public void swapConnections(int i, int j, int newConnection){
-       disconnect(i,j);
-       connect(i,newConnection,adjacencyMatrix[i][j]);
+    public void newConnection(int i, int j, int newConnection, double capture){
+       disconnect(i,j,capture);
+       connect(i,newConnection,capture);
     }
 
-    private void disconnect(int i, int j){
-        double capture = adjacencyMatrix[i][j];
+    private void disconnect(int i, int j, double capture){
         double c;
         adjacencyMatrix[i][j] = 0;
         adjacencyMatrix[i][i] = 0;
@@ -213,7 +212,6 @@ public class RedSensorsState {
             c = adjacencyMatrix[j][j];
             int cd = (int) c;
             adjacencyMatrix[j][cd] = dataVolume(j);
-            if (cd < ncent) adjacencyMatrix[cd][cd] -= capture;
         }
     }
 
@@ -227,7 +225,7 @@ public class RedSensorsState {
             }
             if(num_connexions >=25) return sum;
         }
-        return -1;
+        return 0;
     }
 
     private void connect(int i, int newConnection, double capture){
