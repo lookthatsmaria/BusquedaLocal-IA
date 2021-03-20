@@ -4,82 +4,71 @@ import IA.Red.*;
 public class RedSensorsState {
     private final ArrayList<IA.Red.Centro> datacenters;
     private final ArrayList<IA.Red.Sensor> sensors;
-    private double [][] map;
+    private double [][] adjacencyMatrix;
     private final double [][] dist;
-    private final int n, m;
+    private final int ncent, nElements;
 
     public RedSensorsState(int ncent, int nsens, int seedc, int seeds, int option){
         datacenters = new CentrosDatos(ncent, seedc);
         sensors = new Sensores(nsens, seeds);
-        n = ncent;
-        m = ncent+nsens;
-        map = new double[m][m];
-        dist = new double[m][m];
-		    switch (option) {
-				case 1:
-					initialSolution1();
-					break;
-				case 2:
-					initialSolution2();
-					break;
-				case 3:
-					initialSolutionTestLoop();
-					break;
-				default:
-					initialSolution1();
-					break;
-			}
+        this.ncent = ncent;
+        nElements = ncent+nsens;
+        adjacencyMatrix = new double[nElements][nElements];
+        dist = new double[nElements][nElements];
+        switch (option) {
+            case 2 -> initialSolution2();
+            case 3 -> initialSolutionTestLoop();
+            default -> initialSolution1();
+        }
+    }
+
+    public RedSensorsState(int ncent, int nsens, double [][] dist, double [][] adjacencyMatrix, ArrayList<IA.Red.Centro> datacenters, ArrayList<IA.Red.Sensor> sensors){
+        this.ncent = ncent;
+        nElements = ncent+nsens;
+        this.dist = dist;
+        this.adjacencyMatrix = adjacencyMatrix;
+        this.datacenters = datacenters;
+        this.sensors = sensors;
     }
 
     public void initialSolution1(){
         int src_X, src_Y, dst_X,  dst_Y;
-        for(int i = 0; i < m; ++i){
-            if (i < n) {
+        for(int i = 0; i < nElements; ++i){
+            if (i < ncent) {
 							src_X = datacenters.get(i).getCoordX();
 							src_Y = datacenters.get(i).getCoordY();
 						}
             else { 
-							src_X = sensors.get(i-n).getCoordX();
-							src_Y = sensors.get(i-n).getCoordY();
+							src_X = sensors.get(i- ncent).getCoordX();
+							src_Y = sensors.get(i- ncent).getCoordY();
 						}
-            for(int j = 0; j < m; ++j){
-                dist[i][j] = 0; map[i][j]=0;
-                if (i != j && (i >= n || j >= n)){
-                    if (i >= n){
-                        if (j < n) {
+            for(int j = 0; j < nElements; ++j){
+                dist[i][j] = 0; adjacencyMatrix[i][j]=0;
+                if (i != j && (i >= ncent || j >= ncent)){
+                    if (i >= ncent){
+                        if (j < ncent) {
                             dst_X = datacenters.get(j).getCoordX();
                             dst_Y = datacenters.get(j).getCoordY();
-                            if ((i < (25+n)+j*25) && (i >= (25+n)+(j-1)*25)) {
-                                double capture = sensors.get(i-n).getCapacidad();
-                                map[i][j] = capture;
-                                map[j][j] += capture;
-                                map[i][i] =  j;
+                            if ((i < (25+ ncent)+j*25) && (i >= (25+ ncent)+(j-1)*25)) {
+                                double capture = sensors.get(i- ncent).getCapacidad();
+                                adjacencyMatrix[i][j] = capture;
+                                adjacencyMatrix[i][i] =  j;
                                 break;
                             }
                         }
                         else {
-                            dst_X = sensors.get(j - n).getCoordX();
-                            dst_Y = sensors.get(j - n).getCoordY();
-                            if (i >= ((25*n)+n) 
-																&& ((i-(25*n)) < (3+n)+(j-n)*3) 
-																&& ((i-(25*n)) >= (3+n)+(j-n-1)*3)) 
+                            dst_X = sensors.get(j - ncent).getCoordX();
+                            dst_Y = sensors.get(j - ncent).getCoordY();
+                            if (i >= ((25* ncent)+ ncent)
+																&& ((i-(25* ncent)) < (3+ ncent)+(j- ncent)*3)
+																&& ((i-(25* ncent)) >= (3+ ncent)+(j- ncent -1)*3))
 														{
-                                double capture = sensors.get(i-n).getCapacidad();
-                                double c = map[j][j];
+                                double capture = sensors.get(i- ncent).getCapacidad();
+                                double c = adjacencyMatrix[j][j];
                                 int cd = (int) c;
-                                map[i][j] = capture;
-                                map[j][cd] += capture;
-                                double throughput = map[j][cd];
-                                double capacity = sensors.get(j-n).getCapacidad()*3;
-                                if (capture + throughput <= capacity) {
-                                    map[j][cd] += capture;
-                                    if (cd < n) map[cd][cd] += capture;
-                                }
-                                else {
-                                    map[j][cd] = capacity;
-                                    if (cd < n) map[cd][cd] += sensors.get(j-n).getCapacidad()*3 - throughput;
-                                }
-                                map[i][i] = j;
+                                adjacencyMatrix[i][j] = capture;
+                                propagateThroughput(adjacencyMatrix[j][cd], sensors.get(j- ncent).getCapacidad()*3, sensors.get(i- ncent).getCapacidad(), cd, j );
+                                adjacencyMatrix[i][i] = j;
                                 break;
                             }
                         }
@@ -92,45 +81,48 @@ public class RedSensorsState {
 
     }
 
+    public void propagateThroughput(double throughput, double capacity,double capture, int cd, int j){
+        if (capture + throughput <= capacity) adjacencyMatrix[j][cd] += capture;
+        else adjacencyMatrix[j][cd] = capacity;
+    }
+
     public void initialSolution2(){
         int src_X, src_Y, dst_X,  dst_Y;
-        for(int i = 0; i < m; ++i) {
-            if (i < n) {
+        for(int i = 0; i < nElements; ++i) {
+            if (i < ncent) {
                 src_X = datacenters.get(i).getCoordX();
                 src_Y = datacenters.get(i).getCoordY();
             } else {
-                src_X = sensors.get(i - n).getCoordX();
-                src_Y = sensors.get(i - n).getCoordY();
+                src_X = sensors.get(i - ncent).getCoordX();
+                src_Y = sensors.get(i - ncent).getCoordY();
             }
-            for (int j = 0; j < m; ++j) {
+            for (int j = 0; j < nElements; ++j) {
                 dist[i][j] = 0;
-                map[i][j] = 0;
-                if (i != j && (i >= n || j >= n)) {
-                    if (i >= n) {
-                        if (j < n) {
+                adjacencyMatrix[i][j] = 0;
+                if (i != j && (i >= ncent || j >= ncent)) {
+                    if (i >= ncent) {
+                        if (j < ncent) {
                             dst_X = datacenters.get(j).getCoordX();
                             dst_Y = datacenters.get(j).getCoordY();
-                            double capture = sensors.get(i - n).getCapacidad();
-                            if (canConnect(j, 25) && ((map[j][j] + capture) <= (150))) {
-                                map[i][j] = capture;
-                                map[j][j] += capture;
-                                map[i][i] =  j;
+                            double capture = sensors.get(i - ncent).getCapacidad();
+                            if (canConnect(j, 25) && ((adjacencyMatrix[j][j] + capture) <= (150))) {
+                                adjacencyMatrix[i][j] = capture;
+                                adjacencyMatrix[i][i] =  j;
                                 break;
                             }
                         } else {
-                            dst_X = sensors.get(j - n).getCoordX();
-                            dst_Y = sensors.get(j - n).getCoordY();
-                            double capture = sensors.get(i - n).getCapacidad();
-                            double c = map[j][j];
+                            dst_X = sensors.get(j - ncent).getCoordX();
+                            dst_Y = sensors.get(j - ncent).getCoordY();
+                            double capture = sensors.get(i - ncent).getCapacidad();
+                            double c = adjacencyMatrix[j][j];
                             int cd = (int) c;
                             if (canConnect(j, 3) 
-																&& ((map[j][cd] + capture) <= (3 * sensors.get(j - n).getCapacidad()))
-																&& ((map[cd][cd] + capture) <= (150)) ) 
+																&& ((adjacencyMatrix[j][cd] + capture) <= (3 * sensors.get(j - ncent).getCapacidad()))
+																&& ((adjacencyMatrix[cd][cd] + capture) <= (150)) )
 														{
-                                map[i][j] = capture;
-                                map[j][cd] += capture;
-                                if (cd < n) map[cd][cd] += capture;
-                                map[i][i] = j;
+                                adjacencyMatrix[i][j] = capture;
+                                propagateThroughput(adjacencyMatrix[j][cd], sensors.get(j- ncent).getCapacidad()*3, sensors.get(i- ncent).getCapacidad(), cd, j );
+                                adjacencyMatrix[i][i] = j;
                                 break;
                             }
                         }
@@ -143,43 +135,39 @@ public class RedSensorsState {
     }
 		public void initialSolutionTestLoop(){
         int src_X, src_Y, dst_X,  dst_Y;
-        for(int i = n; i < m-1; ++i) {
-						src_X = sensors.get(i-n).getCoordX();
-						src_Y = sensors.get(i-n).getCoordY();
-						dst_X = sensors.get(i+1-n).getCoordX();
-						dst_Y = sensors.get(i+1-n).getCoordY();
+        for(int i = ncent; i < nElements -1; ++i) {
+						src_X = sensors.get(i- ncent).getCoordX();
+						src_Y = sensors.get(i- ncent).getCoordY();
+						dst_X = sensors.get(i+1- ncent).getCoordX();
+						dst_Y = sensors.get(i+1- ncent).getCoordY();
 						dist[i][i+1] = distance(src_X, src_Y, dst_X, dst_Y);
-						map[i][i+1] = sensors.get(i-n).getCapacidad();
-						map[i][i] = i+1;
+						adjacencyMatrix[i][i+1] = sensors.get(i- ncent).getCapacidad();
+						adjacencyMatrix[i][i] = i+1;
 				}
-				src_X = sensors.get(m-1-n).getCoordX();
-				src_Y = sensors.get(m-1-n).getCoordY();
+				src_X = sensors.get(nElements -1- ncent).getCoordX();
+				src_Y = sensors.get(nElements -1- ncent).getCoordY();
 				dst_X = sensors.get(0).getCoordX();
 				dst_Y = sensors.get(0).getCoordY();
-				dist[m-1][n] = distance(src_X, src_Y, dst_X, dst_Y);
-				map[m-1][n] = sensors.get(m-1-n).getCapacidad();
-				map[m-1][m-1] = n;
+				dist[nElements -1][ncent] = distance(src_X, src_Y, dst_X, dst_Y);
+				adjacencyMatrix[nElements -1][ncent] = sensors.get(nElements -1- ncent).getCapacidad();
+				adjacencyMatrix[nElements -1][nElements -1] = ncent;
 				print_map();
 		}
 
     public boolean canConnect(int j, int limit){
-				System.out.println("Find Loop On:" + j);
         int numConnexions = 0;
 				ArrayList connections = getConnected(j);
 				if(connections.size() >= limit) return false;
 				ArrayList visited=new ArrayList();
-				visited.add((int)j);
+				visited.add(j);
         return findLoop(j,visited);
     }
 		private boolean findLoop(int j, ArrayList visited){
-			int next = (int)map[j][j];
-			System.out.println(j);
-			// si el siguiente nodo es Centro de Datos no hay loop
-			if(next < n) return true;
-			for(int i = 0; i < visited.size(); ++i){
-				//si el siguiente nodo esta visitado, hay loop
-				if((int)visited.get(i) == next) return false;
-			}
+			int next = (int) adjacencyMatrix[j][j];
+			if(next < ncent) return true;
+            for (Object o : visited) {
+                if ((int) o == next) return false;
+            }
 			visited.add(next);
 			return findLoop(next,visited);
 		}
@@ -189,20 +177,20 @@ public class RedSensorsState {
     }
 
     public double getDistance(int i, int j){
-        if (i < 0 || i >= m || j < 0 || j >= m) return -1;
+        if (i < 0 || i >= nElements || j < 0 || j >= nElements) return -1;
         return dist[i][j];
     }
 
     public double getCost(int i, int j){
-        if (i < 0 || i >= m || j < 0 || j >= m) return -1;
-        return dist[i][j] * map[i][j];
+        if (i < 0 || i >= nElements || j < 0 || j >= nElements) return -1;
+        return dist[i][j] * adjacencyMatrix[i][j];
     }
 
     public void print_map(){
-        for (int i = 0; i < m; ++i) {
+        for (int i = 0; i < nElements; ++i) {
             System.out.print("fila: " + i + " ");
-            for (int j = 0; j < m; ++j)
-                System.out.print(map[i][j] + " ");
+            for (int j = 0; j < nElements; ++j)
+                System.out.print(adjacencyMatrix[i][j] + " ");
             System.out.println();
         }
     }
@@ -210,46 +198,78 @@ public class RedSensorsState {
     public ArrayList getConnected(int node){
 	    // returns an ArrayList with the nodes connected to "node"
 			ArrayList child = new ArrayList();
-			for(int i = 0; i < m; ++i){
-				if((i != node) && (map[i][node] != 0)){
-					child.add((int)map[i][node]);
+			for(int i = 0; i < nElements; ++i){
+				if((i != node) && (adjacencyMatrix[i][node] != 0)){
+					child.add((int)adjacencyMatrix[i][node]);
 				}
 			}
 			return child;
  	
     }
 
-    public void swapConnections(int i, int j, int newc){
-        double capture = map[i][j];
+    public void newConnection(int i, int j, int newConnection, double capture){
+       disconnect(i,j,capture);
+       connect(i,newConnection,capture);
+    }
+
+    private void disconnect(int i, int j, double capture){
         double c;
-        if(j < n) map[j][j] -= capture;
+        adjacencyMatrix[i][j] = 0;
+        adjacencyMatrix[i][i] = 0;
+        if(j < ncent) adjacencyMatrix[j][j] -= capture;
         else{
-            c = map[j][j];
+            c = adjacencyMatrix[j][j];
             int cd = (int) c;
-            map[j][cd] -= capture;
-            if (cd < n) map[cd][cd] -= capture;
+            adjacencyMatrix[j][cd] = dataVolume(j);
         }
-        if(newc < n){
-            map[i][newc] = capture;
-            map[newc][newc] += capture;
+    }
+
+    public double dataVolume(int j){
+        double sum = 0;
+        int num_connexions = 0;
+        for(int i = ncent; i < nElements; ++i){
+            if (adjacencyMatrix[i][j] > 0){
+                sum += adjacencyMatrix[i][j];
+                ++num_connexions;
+            }
+            if(num_connexions >=25) return sum;
         }
-        else{
-            c = map[newc][newc];
+        return 0;
+    }
+
+    private void connect(int i, int newConnection, double capture){
+        double c;
+        adjacencyMatrix[i][newConnection] = capture;
+        adjacencyMatrix[i][i] = newConnection;
+        if(newConnection >= ncent){
+            c = adjacencyMatrix[newConnection][newConnection];
             int cd = (int) c;
-            map[i][newc] = capture;
-            map[newc][cd] += capture;
-            if (cd < n) map[cd][cd] += capture;
+            propagateThroughput(adjacencyMatrix[newConnection][cd], sensors.get(newConnection- ncent).getCapacidad()*3, sensors.get(i- ncent).getCapacidad(), cd, newConnection );
         }
-        map[i][j] = 0;
-        map[i][i] =  newc;
     }
 
     public double heuristic(){return 0; }
-	public int dataCenters(){
-			return n;
+
+		public int getNcent(){
+					return ncent;
 		}
-	public int size(){
-			return m;
+		public int getnElements(){
+			return nElements;
 		}
 
+		public double[][] getDist() {
+				return dist;
+		}
+
+		public double[][] getAdjacencyMatrix() {
+				return adjacencyMatrix.clone();
+		}
+
+		public ArrayList<Centro> getDatacenters() {
+				return datacenters;
+		}
+
+		public ArrayList<Sensor> getSensors() {
+				return sensors;
+		}
 }
