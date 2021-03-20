@@ -6,7 +6,13 @@ import aima.search.framework.Successor;
 
 public class RedSensorsSuccesorFunction implements SuccessorFunction{
 
-    public List getSuccessors(Object state){
+    public List getHillClimbSuccessors(Object state){
+
+        return (List)state;
+
+    }
+
+    public List getAnealingSuccessor(Object state){
 
         return (List)state;
 

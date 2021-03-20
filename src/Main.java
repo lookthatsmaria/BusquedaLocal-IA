@@ -1,19 +1,18 @@
 import java.util.*;
 public class Main {
     public static void main(String[] args) throws Exception {
-				int option = 3;
+				int option = 2;
         RedSensorsState red = new RedSensorsState(2, 50, 1234, 4321, option);
 
 				//tests
-				if(option == 3){
-					boolean canConnectResult = true;
-					for(int i = red.dataCenters(); i < red.size(); ++i){
-						canConnectResult = canConnectResult && red.canConnect(i, 3);
-						
-					}
-					if(canConnectResult) System.out.println(" se puede conectar en todos nodo");
-					System.out.println("no se puede conectar en todos los nodos");
+				boolean canConnectResult = true;
+				for(int i = red.dataCenters(); i < red.size(); ++i){
+					System.out.println("Main for loop:" + i);
+					canConnectResult = canConnectResult && red.canConnect(i, 3);
+					
 				}
+				if(canConnectResult) System.out.println(" se puede conectar en todos nodo");
+				System.out.println("no se puede conectar en todos los nodos");
 
 
     }

@@ -163,29 +163,23 @@ public class RedSensorsState {
 		}
 
     public boolean canConnect(int j, int limit){
+				System.out.println("Find Loop On:" + j);
         int numConnexions = 0;
-        for(int i = n; i < m; ++i){
-            if (map[i][j] > 0) ++numConnexions;
-            if (numConnexions >= limit) return false;
-        }
+				ArrayList connections = getConnected(j);
+				if(connections.size() >= limit) return false;
 				ArrayList visited=new ArrayList();
 				visited.add((int)j);
         return findLoop(j,visited);
     }
 		private boolean findLoop(int j, ArrayList visited){
 			int next = (int)map[j][j];
-			//System.out.println("j:"+j);
-            //System.out.println("next:"+next);
-            //System.out.println("n:"+n);
-            //System.out.println("m:"+m);
-            //for (int i = 0; i < visited.size(); i++) {
-            //    System.out.print(visited.get(i) + " ");
-            //}
+			System.out.println(j);
+			// si el siguiente nodo es Centro de Datos no hay loop
 			if(next < n) return true;
 			for(int i = 0; i < visited.size(); ++i){
+				//si el siguiente nodo esta visitado, hay loop
 				if((int)visited.get(i) == next) return false;
 			}
-			System.out.println(" ");
 			visited.add(next);
 			return findLoop(next,visited);
 		}
@@ -211,6 +205,18 @@ public class RedSensorsState {
                 System.out.print(map[i][j] + " ");
             System.out.println();
         }
+    }
+
+    public ArrayList getConnected(int node){
+	    // returns an ArrayList with the nodes connected to "node"
+			ArrayList child = new ArrayList();
+			for(int i = 0; i < m; ++i){
+				if((i != node) && (map[i][node] != 0)){
+					child.add((int)map[i][node]);
+				}
+			}
+			return child;
+ 	
     }
 
     public void swapConnections(int i, int j, int newc){
