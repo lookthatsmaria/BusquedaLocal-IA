@@ -137,7 +137,7 @@ public class RedSensorsState {
 						dst_X = sensors.get(i+1- ncent).getCoordX();
 						dst_Y = sensors.get(i+1- ncent).getCoordY();
 						dist[i][i+1] = distance(src_X, src_Y, dst_X, dst_Y);
-						adjacencyMatrix[i][i+1] = sensors.get(i- ncent).getCapacidad();
+						adjaºcencyMatrix[i][i+1] = sensors.get(i- ncent).getCapacidad();
 						adjacencyMatrix[i][i] = i+1;
 				}
 				src_X = sensors.get(nElements -1- ncent).getCoordX();
@@ -150,6 +150,13 @@ public class RedSensorsState {
 				print_map();
 		}
 
+    public void propagateThroughput(int nodeToUpdate){
+			int connnection = (int)adjacencyMatrix[nodeToUpdate][nodeToUpdate];
+			double currentCapture = adjacencyMatrix[nodeToUpdate][connection];
+			double newCapture = dataVolume(nodeToUpdate);
+			adjacencyMatrix[nodeToUpdate][nodeToUpdate] = newCapture;
+			if((currentCapture != newCapture) && (connection >= ncents)) propagateThroughput(connection);
+    }
     public void propagateThroughput(double throughput, double capacity,double capture, int cd, int j){
         if (capture + throughput <= capacity) adjacencyMatrix[j][cd] += capture;
         else adjacencyMatrix[j][cd] = capacity;
@@ -159,8 +166,7 @@ public class RedSensorsState {
         int numConnexions = 0;
 				ArrayList connections = getConnected(j);
 				if(connections.size() >= limit) return false;
-				ArrayList visited=new ArrayList();
-        return findLoop(j,j);
+        return true;
     }
 		private boolean findLoop(int j, int i){
 			int next = (int) adjacencyMatrix[j][j];
@@ -204,9 +210,9 @@ public class RedSensorsState {
 			return children;
     }
 
-    public void newConnection(int i, int j, int newConnection, double capture){
-       disconnect(i,j,capture);
-       connect(i,newConnection,capture);
+    public void newConnection(int node, int oldConnection, int newConnection, double capture){
+       disconnect(node,oldConnection,capture);
+       connect(node,newConnection,capture);
     }
 
     private void disconnect(int i, int j, double capture){
@@ -242,7 +248,11 @@ public class RedSensorsState {
         if(newConnection >= ncent){
             c = adjacencyMatrix[newConnection][newConnection];
             int cd = (int) c;
-            propagateThroughput(adjacencyMatrix[newConnection][cd], sensors.get(newConnection- ncent).getCapacidad()*3, sensors.get(i- ncent).getCapacidad(), cd, newConnection );
+            propagateThroughput(adjacencyMatrix[newConnection][cd],
+								sensors.get(newConnection- ncent).getCapacidad()*3,
+								sensors.get(i- ncent).getCapacidad(),
+								cd,
+								newConnection );
         }
     }
 

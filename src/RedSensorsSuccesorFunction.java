@@ -8,18 +8,18 @@ public class RedSensorsSuccesorFunction implements SuccessorFunction{
     public List getSuccessors(Object aState){
         ArrayList retVal= new ArrayList();
         RedSensorsState state=(RedSensorsState) aState;
-        for(int i = state.getNcent(); i < state.getnElements(); ++i) {
+        for(int node = state.getNcent(); node < state.getnElements(); ++node) {
             double [][] adjacencyMatrix = state.getAdjacencyMatrix();
-            int destination = (int) adjacencyMatrix[i][i];
-            double throughput = adjacencyMatrix[i][destination];
-            for (int j = 0; j < state.getnElements(); ++j) {
-                if(j != destination){
+            int oldConnection = (int) adjacencyMatrix[node][node];
+            double throughput = adjacencyMatrix[node][oldConnection];
+            for (int newConnection = 0; newConnection < state.getnElements(); ++newConnection) {
+                if(newConnection != oldConnection){
                     RedSensorsState newState = new RedSensorsState(state.getNcent(), state.getnElements() - state.getNcent(), state.getDist(), adjacencyMatrix, state.getDatacenters(), state.getSensors());
                     int limit;
-                    if (j < newState.getNcent()) limit = 25;
+                    if (newConnection < newState.getNcent()) limit = 25;
                     else limit = 3;
-                    if (newState.canConnect(j,limit)) {
-                        newState.newConnection(i,destination,j,throughput);
+                    if (newState.canConnect(newConnection,limit) && newState.findLoop(node,newConnection)) {
+                        newState.newConnection(node,oldConnection,newConnection,throughput);
                         retVal.add(new Successor("NEW CONNECTION", newState));
                     }
                 }
