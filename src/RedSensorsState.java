@@ -224,14 +224,15 @@ public class RedSensorsState {
     public double dataVolume(int j){
         double sum = 0;
         int num_connexions = 0;
+				double max_throughput = 3*sensors.get(j-ncent).getCapacidad();
         for(int i = ncent; i < nElements; ++i){
             if (adjacencyMatrix[i][j] > 0){
                 sum += adjacencyMatrix[i][j];
                 ++num_connexions;
             }
-            if(num_connexions >=25) return sum;
+            if(num_connexions >=3) return sum > max_throughput? max_throughput:sum;
         }
-        return 0;
+        return sum > max_throughput? max_throughput:sum;
     }
 
     private void connect(int i, int newConnection, double capture){
