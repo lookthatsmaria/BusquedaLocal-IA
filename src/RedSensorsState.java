@@ -67,7 +67,7 @@ public class RedSensorsState {
                                 double c = adjacencyMatrix[j][j];
                                 int cd = (int) c;
                                 adjacencyMatrix[i][j] = capture;
-                                propagateThroughput(adjacencyMatrix[j][cd], sensors.get(j- ncent).getCapacidad()*3, sensors.get(i- ncent).getCapacidad(), cd, j );
+                                propagateThroughput(adjacencyMatrix[j][cd], sensors.get(j- ncent).getCapacidad()*3, capture, cd, j );
                                 adjacencyMatrix[i][i] = j;
                                 break;
                             }
@@ -117,7 +117,7 @@ public class RedSensorsState {
 																&& ((adjacencyMatrix[cd][cd] + capture) <= (150)) )
 														{
                                 adjacencyMatrix[i][j] = capture;
-                                propagateThroughput(adjacencyMatrix[j][cd], sensors.get(j- ncent).getCapacidad()*3, sensors.get(i- ncent).getCapacidad(), cd, j );
+                                propagateThroughput(adjacencyMatrix[j][cd], sensors.get(j- ncent).getCapacidad()*3, capture, cd, j );
                                 adjacencyMatrix[i][i] = j;
                                 break;
                             }
