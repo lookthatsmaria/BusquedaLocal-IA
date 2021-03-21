@@ -81,10 +81,6 @@ public class RedSensorsState {
 
     }
 
-    public void propagateThroughput(double throughput, double capacity,double capture, int cd, int j){
-        if (capture + throughput <= capacity) adjacencyMatrix[j][cd] += capture;
-        else adjacencyMatrix[j][cd] = capacity;
-    }
 
     public void initialSolution2(){
         int src_X, src_Y, dst_X,  dst_Y;
@@ -154,6 +150,30 @@ public class RedSensorsState {
 				print_map();
 		}
 
+		public double getCost(int nodo){
+			// pre:nodo es un nodo
+			// post:devuelve el coste de todos los hijos de nodo.
+			ArrayList connected = getConnectedThroughput(nodo);
+			if(connected.size() == 0 && nodo < ncent) return 0.0;
+			if(connected.size() == 0){
+				double dist = getDistance(nodo,(int)adjacencyMatrix[nodo][nodo]);
+				return  dist * dist * sensors.get(nodo-ncent).getCapacidad();
+			}
+			double childrenThroughput = 0.0;
+			for(int i = 0; i <  connected.size(); ++i){
+				childrenThroughput+= getCost((int)connected.get(i));
+			}
+			double dist = getDistance(nodo,(int)adjacencyMatrix[nodo][nodo]);
+			double throughput = childrenThroughput > 3*sensors.get(nodo-ncent).getCapacidad()?
+				sensors.get(nodo-ncent).getCapacidad():childrenThroughput;
+			return dist * dist * throughput;
+		}
+
+    public void propagateThroughput(double throughput, double capacity,double capture, int cd, int j){
+        if (capture + throughput <= capacity) adjacencyMatrix[j][cd] += capture;
+        else adjacencyMatrix[j][cd] = capacity;
+    }
+
     public boolean canConnect(int j, int limit){
         int numConnexions = 0;
 				ArrayList connections = getConnected(j);
@@ -195,16 +215,26 @@ public class RedSensorsState {
         }
     }
 
-    public ArrayList getConnected(int node){
-	    // returns an ArrayList with the nodes connected to "node"
-			ArrayList child = new ArrayList();
+    public ArrayList getConnectedThroughput(int node){
+	    // returns an ArrayList with thorugput the nodes connected to "node"
+			ArrayList children = new ArrayList();
 			for(int i = 0; i < nElements; ++i){
 				if((i != node) && (adjacencyMatrix[i][node] != 0)){
-					child.add((int)adjacencyMatrix[i][node]);
+					children.add((int)adjacencyMatrix[i][node]);
 				}
 			}
-			return child;
- 	
+			return children;
+    }
+		 
+    public ArrayList getConnected(int node){
+	    // returns an ArrayList with thorugput the nodes connected to "node"
+			ArrayList children = new ArrayList();
+			for(int i = 0; i < nElements; ++i){
+				if((i != node) && (adjacencyMatrix[i][node] != 0)){
+					children.add(i);
+				}
+			}
+			return children;
     }
 
     public void newConnection(int i, int j, int newConnection, double capture){
