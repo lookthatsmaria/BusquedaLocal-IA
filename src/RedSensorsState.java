@@ -137,7 +137,7 @@ public class RedSensorsState {
 						dst_X = sensors.get(i+1- ncent).getCoordX();
 						dst_Y = sensors.get(i+1- ncent).getCoordY();
 						dist[i][i+1] = distance(src_X, src_Y, dst_X, dst_Y);
-						adjaºcencyMatrix[i][i+1] = sensors.get(i- ncent).getCapacidad();
+						adjacencyMatrix[i][i+1] = sensors.get(i- ncent).getCapacidad();
 						adjacencyMatrix[i][i] = i+1;
 				}
 				src_X = sensors.get(nElements -1- ncent).getCoordX();
@@ -150,30 +150,48 @@ public class RedSensorsState {
 				print_map();
 		}
 
-    public void propagateThroughput(int nodeToUpdate){
-			int connnection = (int)adjacencyMatrix[nodeToUpdate][nodeToUpdate];
-			double currentCapture = adjacencyMatrix[nodeToUpdate][connection];
-			double newCapture = dataVolume(nodeToUpdate);
-			adjacencyMatrix[nodeToUpdate][nodeToUpdate] = newCapture;
-			if((currentCapture != newCapture) && (connection >= ncents)) propagateThroughput(connection);
-    }
     public void propagateThroughput(double throughput, double capacity,double capture, int cd, int j){
         if (capture + throughput <= capacity) adjacencyMatrix[j][cd] += capture;
-        else adjacencyMatrix[j][cd] = capacity;
+        else{
+            capture = capacity-adjacencyMatrix[j][cd];
+            adjacencyMatrix[j][cd] = capacity;
+        }
+        if(cd >= ncent){
+            double c = adjacencyMatrix[cd][cd];
+            int next_node = (int) c;
+            propagateThroughput(adjacencyMatrix[cd][next_node],
+                    sensors.get(cd- ncent).getCapacidad()*3,
+                    capture,
+                    next_node,
+                    cd );
+        }
+    }
+
+    private void connect(int i, int newConnection, double capture){
+        double c;
+        adjacencyMatrix[i][newConnection] = capture;
+        adjacencyMatrix[i][i] = newConnection;
+        if(newConnection >= ncent){
+            c = adjacencyMatrix[newConnection][newConnection];
+            int cd = (int) c;
+            propagateThroughput(adjacencyMatrix[newConnection][cd],
+                    sensors.get(newConnection- ncent).getCapacidad()*3,
+                    capture,
+                    cd,
+                    newConnection);
+        }
     }
 
     public boolean canConnect(int j, int limit){
-        int numConnexions = 0;
 				ArrayList connections = getConnected(j);
-				if(connections.size() >= limit) return false;
-        return true;
+        return connections.size() < limit;
     }
-		private boolean findLoop(int j, int i){
+    public boolean findLoop(int j, int i){
 			int next = (int) adjacencyMatrix[j][j];
 			if(next < ncent) return true;
 			if(next == i) return false;
 			return findLoop(next,i);
-		}
+    }
 
     public double distance(int X1, int Y1, int X2, int Y2){
         return ((double) X1 - (double) X2)*((double) X1 - (double) X2)+((double) Y1 - (double) Y2)*((double) Y1 - (double) Y2);
@@ -201,8 +219,8 @@ public class RedSensorsState {
 		 
     public ArrayList<Integer> getConnected(int node){
 	    // returns an ArrayList with thorugput the nodes connected to "node"
-			ArrayList children = new ArrayList();
-			for(int i = 0; i < nElements; ++i){
+			ArrayList<Integer> children = new ArrayList<>();
+			for(int i = ncent; i < nElements; ++i){
 				if((i != node) && (adjacencyMatrix[i][node] != 0)){
 					children.add(i);
 				}
@@ -236,25 +254,12 @@ public class RedSensorsState {
                 sum += adjacencyMatrix[i][j];
                 ++num_connexions;
             }
-            if(num_connexions >=3) return sum > max_throughput? max_throughput:sum;
+            if(num_connexions >=3) return Math.min(sum, max_throughput);
         }
-        return sum > max_throughput? max_throughput:sum;
+        return Math.min(sum, max_throughput);
     }
 
-    private void connect(int i, int newConnection, double capture){
-        double c;
-        adjacencyMatrix[i][newConnection] = capture;
-        adjacencyMatrix[i][i] = newConnection;
-        if(newConnection >= ncent){
-            c = adjacencyMatrix[newConnection][newConnection];
-            int cd = (int) c;
-            propagateThroughput(adjacencyMatrix[newConnection][cd],
-								sensors.get(newConnection- ncent).getCapacidad()*3,
-								sensors.get(i- ncent).getCapacidad(),
-								cd,
-								newConnection );
-        }
-    }
+
 
     public double heuristic(){return 0; }
 
