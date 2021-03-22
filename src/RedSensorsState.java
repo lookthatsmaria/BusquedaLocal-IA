@@ -156,7 +156,7 @@ public class RedSensorsState {
             capture = capacity-adjacencyMatrix[j][cd];
             adjacencyMatrix[j][cd] = capacity;
         }
-        if(cd >= ncent){
+        if(capture != 0 && cd >= ncent){
             double c = adjacencyMatrix[cd][cd];
             int next_node = (int) c;
             propagateThroughput(adjacencyMatrix[cd][next_node],
@@ -216,7 +216,6 @@ public class RedSensorsState {
         }
     }
 
-		 
     public ArrayList<Integer> getConnected(int node){
 	    // returns an ArrayList with thorugput the nodes connected to "node"
 			ArrayList<Integer> children = new ArrayList<>();
@@ -259,12 +258,15 @@ public class RedSensorsState {
         return Math.min(sum, max_throughput);
     }
 
-
-
     public double heuristic(){return 0; }
 
-		public int getNcent(){
-					return ncent;
+    public double adjacencyMatrix(int i, int j){return adjacencyMatrix[i][j];}
+    public double getCapacityOfSensor(int i){
+        return sensors.get(i).getCapacidad()*3;
+    }
+
+    public int getNcent(){
+        return ncent;
 		}
 		public int getnElements(){
 			return nElements;
