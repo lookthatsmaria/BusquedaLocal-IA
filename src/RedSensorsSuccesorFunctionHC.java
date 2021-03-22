@@ -3,7 +3,7 @@ import java.util.*;
 import aima.search.framework.Successor;
 import aima.search.framework.SuccessorFunction;
 
-public class RedSensorsSuccesorFunction implements SuccessorFunction{
+public class RedSensorsSuccesorFunctionHC implements SuccessorFunction{
 
     public List getSuccessors(Object aState){
         ArrayList retVal= new ArrayList();
