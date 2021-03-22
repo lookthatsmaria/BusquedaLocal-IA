@@ -14,16 +14,14 @@ public class RedSensorsSuccesorFunctionSA implements SuccessorFunction{
         double[][] adjacencyMatrix = state.getAdjacencyMatrix();
         Random rand = new Random();
         int range = max - min + 1;
-        int node = rand.nextInt((range) + min);
-        int newConnection = rand.nextInt((range) + min);
-        int oldConnection = (int) adjacencyMatrix[node][node];
-        int limit = newConnection < min ? 25 : 3;
-        while (newConnection != node && newConnection != oldConnection &&
-                (!state.findLoop(node, newConnection) || !state.canConnect(newConnection, limit))) {
-            node = rand.nextInt((range) + min);
-            newConnection = rand.nextInt((range) + min);
-            oldConnection = (int) adjacencyMatrix[node][node];
-        }
+				int node , newConnection , oldConnection , limit ;
+				do{
+					node = rand.nextInt((range) + min);
+					newConnection = rand.nextInt((range) + min);
+					oldConnection = (int) adjacencyMatrix[node][node];
+					limit = newConnection < min ? 25 : 3;
+        }while (newConnection != node && newConnection != oldConnection &&
+                (!state.findLoop(node, newConnection) || !state.canConnect(newConnection, limit)));
         newState = new RedSensorsState(
                 state.getNcent(),
                 state.getnElements() - state.getNcent(),
