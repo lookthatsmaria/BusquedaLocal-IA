@@ -187,6 +187,8 @@ public class RedSensorsState {
         return connections.size() < limit;
     }
     public boolean findLoop(int j, int i){
+			// i y j son nodos distintos
+			// comprueba si i es antecesor de j (false) o no (true)
 			int next = (int) adjacencyMatrix[j][j];
 			if(next < ncent) return true;
 			if(next == i) return false;
