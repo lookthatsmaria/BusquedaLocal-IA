@@ -229,17 +229,18 @@ public class RedSensorsState {
 			return children;
     }
 
+
+
     public void newConnection(int node, int oldConnection, int newConnection, double capture){
-       disconnect(node,oldConnection,capture);
+       disconnect(node,oldConnection);
        connect(node,newConnection,capture);
     }
 
-    private void disconnect(int i, int j, double capture){
+    private void disconnect(int i, int j){
         double c;
         adjacencyMatrix[i][j] = 0;
         adjacencyMatrix[i][i] = 0;
-        if(j < ncent) adjacencyMatrix[j][j] -= capture;
-        else{
+        if(j >= ncent){
             c = adjacencyMatrix[j][j];
             int cd = (int) c;
             adjacencyMatrix[j][cd] = dataVolume(j);
@@ -260,28 +261,29 @@ public class RedSensorsState {
         return Math.min(sum, max_throughput);
     }
 
-    public double heuristic(){return 0; }
 
     public double adjacencyMatrix(int i, int j){return adjacencyMatrix[i][j];}
     public double getCapacityOfSensor(int i){
         return sensors.get(i).getCapacidad()*3;
     }
-
     public int getNcent(){
-        return ncent;
+        return (ncent);
 		}
-		public int getnElements(){
-			return nElements;
-		}
-
-		public double[][] getDist() {
+    public int getnElements(){
+        return nElements;
+    }
+    public double[][] getDist() {
 				return dist;
 		}
 
-		public double[][] getAdjacencyMatrix() {
-				return adjacencyMatrix.clone();
-		}
 
+    public double[][] getAdjacencyMatrix() {
+        double[][] nadjacencyMatrix = new double[nElements][nElements];
+        for (int i = 0; i < adjacencyMatrix.length; i++) {
+            System.arraycopy(adjacencyMatrix[i], 0, nadjacencyMatrix[i], 0, adjacencyMatrix.length);
+        }
+        return (nadjacencyMatrix);
+    }
 		public ArrayList<Centro> getDatacenters() {
 				return datacenters;
 		}

@@ -16,10 +16,12 @@ public class RedSensorsHeuristicFunction implements HeuristicFunction {
         double totalDataVolume = 0;
         double dataVolume;
         double dataLost = 0;
+        double capacity;
         for(int src = state.getNcent(); src < state.getnElements(); ++src){
             int dst = (int)state.adjacencyMatrix(src,src);
             dataVolume = state.adjacencyMatrix(src,dst);
-            double capacity = state.getCapacityOfSensor(dst);
+            if(dst >= state.getNcent()) capacity = state.getCapacityOfSensor(dst- state.getNcent());
+            else capacity = 150;
             double difference = dataVolume - capacity;
             if (difference > 0){
                 totalDataVolume += capacity;
