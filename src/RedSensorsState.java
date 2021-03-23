@@ -158,11 +158,12 @@ public class RedSensorsState {
         int numConnexions = 0;
 				ArrayList connections = getConnected(j);
 				if(connections.size() >= limit) return false;
-				ArrayList visited=new ArrayList();
-				visited.add(j);
-        return findLoop(j,visited);
+        return true;
     }
 		private boolean findLoop(int j, ArrayList visited){
+			// pre: j es un nodo, visited en una lista con los nodos visitados.
+			// post: Recorre en orden ascendente los nodos hasta que encuentra un centro de datos o un nodo que ya haya visitado,
+			// en tal caso devuelve cierto o falso respectivamente.
 			int next = (int) adjacencyMatrix[j][j];
 			if(next < ncent) return true;
             for (Object o : visited) {
