@@ -11,8 +11,8 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        int option = 1;
-        RedSensorsState red = new RedSensorsState(4, 100, 1234, 4321, option);
+        int option = 2;
+        RedSensorsState red = new RedSensorsState(6, 100, 1234, 4321, option);
         //tests
         boolean canConnectResult = true;
         for (int i = red.getNcent(); i < red.getnElements(); ++i) {

@@ -186,13 +186,14 @@ public class RedSensorsState {
 				ArrayList connections = getConnected(j);
         return connections.size() < limit;
     }
-    public boolean findLoop(int j, int i){
+    public boolean findLoop(int i, int j){
 			// i y j son nodos distintos
 			// comprueba si i es antecesor de j (false) o no (true)
 			int next = (int) adjacencyMatrix[j][j];
 			if(next < ncent) return true;
 			if(next == i) return false;
-			return findLoop(next,i);
+            //System.out.println(i+" "+j+" "+next);
+            return findLoop(i,next);
     }
 
     public double distance(int X1, int Y1, int X2, int Y2){

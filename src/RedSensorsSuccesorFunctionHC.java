@@ -8,9 +8,7 @@ public class RedSensorsSuccesorFunctionHC implements SuccessorFunction{
     public List getSuccessors(Object aState){
         ArrayList retVal= new ArrayList();
         RedSensorsState state=(RedSensorsState) aState;
-        int itera = 4;
         for(int node = state.getNcent(); node < state.getnElements(); ++node) {
-            System.out.println(itera);
             double [][] adjacencyMatrix = state.getAdjacencyMatrix();
             int oldConnection = (int) adjacencyMatrix[node][node];
             double throughput = adjacencyMatrix[node][oldConnection];
@@ -18,15 +16,13 @@ public class RedSensorsSuccesorFunctionHC implements SuccessorFunction{
                 if(newConnection != node && newConnection != oldConnection){
                     RedSensorsState newState = new RedSensorsState(state.getNcent(), state.getnElements() - state.getNcent(), state.getDist(), state.getAdjacencyMatrix(), state.getDatacenters(), state.getSensors());
                     int limit = newConnection < newState.getNcent() ? 25:3;
+                    System.out.println();
                     if (newState.canConnect(newConnection,limit) && newState.findLoop(node,newConnection)) {
                         newState.newConnection(node,oldConnection,newConnection,throughput);
                         retVal.add(new Successor("NEW CONNECTION", newState));
-                        //System.out.println();
-                        //System.out.println(node);
                     }
                 }
             }
-            ++itera;
         }
         return retVal;
     }
