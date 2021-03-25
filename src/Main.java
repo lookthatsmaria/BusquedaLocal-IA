@@ -11,8 +11,8 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        int option = 2;
-        RedSensorsState red = new RedSensorsState(6, 100, 1234, 4321, option);
+        int option = 1;
+        RedSensorsState red = new RedSensorsState(2, 50, 1234, 4321, option);
         //tests
         boolean canConnectResult = true;
         for (int i = red.getNcent(); i < red.getnElements(); ++i) {
@@ -28,8 +28,10 @@ public class Main {
                 new RedSensorsGoalTest(),
                 new RedSensorsHeuristicFunction());
 
+        long start = System.currentTimeMillis();
         // Instantiate the search algorithm
         Search alg = new HillClimbingSearch();
+        //System.out.println(red.toString());
 
         // Instantiate the SearchAgent object
         SearchAgent agent = new SearchAgent(p, alg);
@@ -38,8 +40,10 @@ public class Main {
         System.out.println();
         printActions(agent.getActions());
         printInstrumentation(agent.getInstrumentation());
+        long finish = System.currentTimeMillis();
+        System.out.println("elapsed time: "+(finish- start));
 
-        red.print_map();
+
     }
     private static void printInstrumentation(Properties properties) {
         for (Object o : properties.keySet()) {
