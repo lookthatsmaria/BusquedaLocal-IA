@@ -404,7 +404,6 @@ public class RedSensorsState {
 
     public double getCost_v2(int i, int j){
         if (i < 0 || i >= nElements || j < 0 || j >= nElements) return -1;
-        initializeDist();
         return dist[i][j] * thropt[i-ncent];
     }
 

@@ -10,7 +10,6 @@ public class RedSensorsSuccesorFunctionHC implements SuccessorFunction{
         RedSensorsState state=(RedSensorsState) aState;
         RedSensorsHeuristicFunction RDHF = new RedSensorsHeuristicFunction();
         for(int node = 0; node < state.getNsens(); ++node) {
-            //double [][] adjacencyMatrix = state.getAdjacencyMatrix();
             int[] connexions = state.getConnexions();
             double [] thropt= state.getThropt();
             int oldConnection = connexions[node];
@@ -19,7 +18,6 @@ public class RedSensorsSuccesorFunctionHC implements SuccessorFunction{
                 if(newConnection != node+ (state.getNcent()) && newConnection != oldConnection){
                     RedSensorsState newState = new RedSensorsState(state.getNcent(), state.getNsens(), state.getDist(), state.getConnexions(),state.getThropt(), state.getDataDC(), state.getDatacenters(), state.getSensors());
                     int limit = newConnection < newState.getNcent() ? 25:3;
-                    //System.out.println(node+" "+newConnection+" "+oldConnection+"mepfm");
                     if (newState.canConnect_v2(newConnection,limit) && newState.findLoop_v2(node+ state.getNcent(),newConnection)) {
                         newState.newConnection_v2(node,oldConnection,newConnection,throughput);
                         double v = RDHF.getHeuristicValue(newState);
