@@ -10,6 +10,7 @@ public class RedSensorsState {
     private double [] dataDC;
     private final double [][] dist;
     private final int ncent, nElements, nsens;
+    private double maxData;
 
     public RedSensorsState(int ncent, int nsens, int seedc, int seeds, int option){
         datacenters = new CentrosDatos(ncent, seedc);
@@ -23,6 +24,7 @@ public class RedSensorsState {
         thropt = new double[nsens];
         dist = new double[nElements][nElements];
         dataDC = new double[ncent];
+        calculate_maxData();
         switch (option) {
             case 2 -> initialSolution2_v2();
             case 3 -> initialSolutionTestLoop();
@@ -40,7 +42,7 @@ public class RedSensorsState {
         this.sensors = sensors;
     }
 
-    public RedSensorsState(int ncent, int nsens, double [][] dist, int []connexions, double[] thropt,double[] dataDC, ArrayList<IA.Red.Centro> datacenters, ArrayList<IA.Red.Sensor> sensors){
+    public RedSensorsState(int ncent, int nsens, double [][] dist, int []connexions, double[] thropt,double[] dataDC, ArrayList<IA.Red.Centro> datacenters, ArrayList<IA.Red.Sensor> sensors, double maxData){
         this.ncent = ncent;
         nElements = ncent+nsens;
         this.nsens = nsens;
@@ -50,6 +52,7 @@ public class RedSensorsState {
         this.sensors = sensors;
         this.thropt = thropt;
         this.dataDC = dataDC;
+        this.maxData = maxData;
     }
 
     public void initialSolution1_v2(){
@@ -74,6 +77,7 @@ public class RedSensorsState {
         }
         print_map_v2();
         initializeDist();
+
     }
 
     public void initialSolution2_v2(){
@@ -108,6 +112,13 @@ public class RedSensorsState {
 
         print_map_v2();
         initializeDist();
+
+    }
+
+    public void calculate_maxData(){
+        double sum = 0;
+        for(int sens = 0; sens < nsens; ++sens) sum += sensors.get(sens).getCapacidad();
+        maxData = sum;
     }
 
     public void initializeDist(){
@@ -480,6 +491,7 @@ public class RedSensorsState {
         if (j >= ncent) {
             max_throughput = 3*sensors.get(j-ncent).getCapacidad();
             limit = 3;
+            if (connexions[j-ncent] != -1) sum += sensors.get(j-ncent).getCapacidad();
         }
         else {
             max_throughput = 150;
@@ -536,6 +548,7 @@ public class RedSensorsState {
     public ArrayList<Sensor> getSensors() {
 				return sensors;
 		}
+		public double getMaxData(){return maxData;}
 
     @Override
     public String toString() {
