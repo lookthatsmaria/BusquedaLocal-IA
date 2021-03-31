@@ -13,7 +13,7 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        RedSensorsState red = new RedSensorsState(4, 150, 1234, 4321, 2);
+        RedSensorsState red = new RedSensorsState(Integer.parseInt(args[0]), Integer.parseInt(args[1]), 1234, 4321, 2);
         //tests
         boolean canConnectResult = true;
         for (int i = red.getNcent(); i < red.getnElements(); ++i) {
