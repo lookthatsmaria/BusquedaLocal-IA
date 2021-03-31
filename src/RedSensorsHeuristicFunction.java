@@ -12,16 +12,18 @@ public class RedSensorsHeuristicFunction implements HeuristicFunction {
     public double getHeuristicValue(Object n){
         RedSensorsState state=(RedSensorsState)n;
         double totalCost = 0;
-        double totalDataVolume1 = 0;
-        double dataLost = 0;
-        for(int src = 0; src < state.getNsens(); ++src){
+        double totalDataVolume = 0;
+        double dataLost;
+        int nsens = state.getNsens();
+        int ncent = state.getNcent();
+        for(int src = 0; src < nsens; ++src){
             int dst = state.connexions(src);
-            totalCost += state.getCost_v2(src+ state.getNcent(),dst);
+            totalCost += state.getCost(src+ncent,dst);
+            if (src < ncent)
+                totalDataVolume += state.dataDC(src);
         }
-        for(int cd = 0; cd < state.getNcent(); ++cd) {
-            totalDataVolume1 += state.dataDC(cd);
-        }
-        dataLost = state.getMaxData() - totalDataVolume1;
+        dataLost = state.getMaxData() - totalDataVolume;
+        //System.out.println(state.getMaxData());
         return totalCost+dataLost*totalCost;
     }
 }

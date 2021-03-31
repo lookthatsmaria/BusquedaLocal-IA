@@ -1,5 +1,5 @@
 import java.util.*;
-import java.lang.Math;
+
 import aima.search.framework.Successor;
 import aima.search.framework.SuccessorFunction;
 
@@ -10,28 +10,25 @@ public class RedSensorsSuccesorFunctionSA implements SuccessorFunction{
         RedSensorsState state = (RedSensorsState) aState;
         int min = state.getNcent();
         int max = state.getnElements();
-        RedSensorsState newState;
-        double[][] adjacencyMatrix = state.getAdjacencyMatrix();
+        int[] connexions = state.getConnexions();
+        double [] thropt= state.getThroughput();
+        RedSensorsHeuristicFunction RDHF = new RedSensorsHeuristicFunction();
         Random rand = new Random();
-        int range = max - min + 1;
 				int node , newConnection , oldConnection , limit ;
 				do{
-					node = rand.nextInt((range) + min);
-					newConnection = rand.nextInt((range) + min);
-					oldConnection = (int) adjacencyMatrix[node][node];
+					node = rand.nextInt(max);
+					newConnection = rand.nextInt(max);
 					limit = newConnection < min ? 25 : 3;
-        }while (newConnection != node && newConnection != oldConnection &&
-                (!state.findLoop(node, newConnection) || !state.canConnect(newConnection, limit)));
-        newState = new RedSensorsState(
-                state.getNcent(),
-                state.getnElements() - state.getNcent(),
-                state.getDist(),
-                adjacencyMatrix,
-                state.getDatacenters(),
-                state.getSensors());
-        double throughput = adjacencyMatrix[node][oldConnection];
-        newState.newConnection(node, oldConnection, newConnection, throughput);
-        retVal.add(new Successor("NEW CONNECTION", newState));
+                }while (node < min || newConnection == node || newConnection == connexions[node-min] ||
+                !state.noCycle(node, newConnection) || !state.canConnect(newConnection, limit));
+        oldConnection = connexions[node-min];
+        RedSensorsState newState = new RedSensorsState(state.getNcent(), state.getNsens(), state.getDist(), state.getConnexions(),state.getThroughput(), state.getDataDC(), state.getDatacenters(), state.getSensors(),state.getMaxData());
+        double throughput = thropt[node-min];
+        newState.modifyConnection(node-min, oldConnection, newConnection, throughput);
+        double v = RDHF.getHeuristicValue(newState);
+        String S = "NEW CONNECTION  Coste("+v+") ---> "+ newState.toString();
+        retVal.add(new Successor(S, newState));
+        System.out.println(S);
         return retVal;
     }
 

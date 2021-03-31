@@ -3,6 +3,8 @@ import aima.search.framework.Search;
 import aima.search.framework.SearchAgent;
 import aima.search.informed.HillClimbingSearch;
 import aima.search.informed.SimulatedAnnealingSearch;
+
+
 import java.util.*;
 
 //Sol inicial 1: es posible que se pierda informacion
@@ -11,8 +13,7 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        int option = 1;
-        RedSensorsState red = new RedSensorsState(4, 100, 1234, 4321, option);
+        RedSensorsState red = new RedSensorsState(4, 150, 1234, 4321, 2);
         //tests
         boolean canConnectResult = true;
         for (int i = red.getNcent(); i < red.getnElements(); ++i) {
@@ -24,22 +25,22 @@ public class Main {
 
         // Create the Problem object
         Problem p = new Problem(red,
-                new RedSensorsSuccesorFunctionHC(),
+                new RedSensorsSuccesorFunctionSA(),
                 new RedSensorsGoalTest(),
                 new RedSensorsHeuristicFunction());
 
         long start = System.currentTimeMillis();
         // Instantiate the search algorithm
-        Search alg = new HillClimbingSearch();
-        //System.out.println(red.toString());
+        //Search alg = new HillClimbingSearch();
+        Search alg = new SimulatedAnnealingSearch(100000000,1000,50,0.001);
 
         // Instantiate the SearchAgent object
         SearchAgent agent = new SearchAgent(p, alg);
 
         // We print the results of the search
-        System.out.println();
         printActions(agent.getActions());
         printInstrumentation(agent.getInstrumentation());
+
         long finish = System.currentTimeMillis();
         System.out.println("elapsed time: "+(finish- start));
 
@@ -56,9 +57,12 @@ public class Main {
 
     private static void printActions(List actions) {
         for (Object o : actions) {
-            String action = (String) o;
-            System.out.println(action);
+            if (o instanceof String) {
+                String action = (String) o;
+                System.out.println(action);
+            } else {
+                System.out.println(o);
+            }
         }
     }
 }
-
