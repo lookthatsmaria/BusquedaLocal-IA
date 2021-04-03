@@ -28,7 +28,7 @@ public class RedSensorsSuccesorFunctionSA implements SuccessorFunction{
         double v = RDHF.getHeuristicValue(newState);
         String S = "NEW CONNECTION  Coste("+v+") ---> "+ newState.toString();
         retVal.add(new Successor(S, newState));
-        System.out.println(S);
+        //System.out.println(S);
         return retVal;
     }
 

@@ -297,10 +297,16 @@ public class RedSensorsState {
     @Override
     public String toString() {
         StringBuilder retVal = new StringBuilder();
-        for (int i = 0; i < nsens; ++i) retVal.append(connexions[i]).append(" ");
+				retVal.append("\nconnexions:\n");
+        for (int i = 0; i < nsens; ++i){
+					retVal.append("(");
+					retVal.append(connexions[i]).append(",");
+					retVal.append(throughput[i]).append(",");
+					retVal.append(sensors.get(i).getCapacidad()*3);
+					retVal.append(")");
+				}
         retVal.append("\n");
-        for (int i = 0; i < nsens; ++i) retVal.append(throughput[i]).append(" ");
-        retVal.append("\n");
+				retVal.append("dataDC:\n");
         for (int i = 0; i < ncent; ++i) retVal.append(dataDC[i]).append(" ");
         retVal.append("\n");
         return retVal.toString();

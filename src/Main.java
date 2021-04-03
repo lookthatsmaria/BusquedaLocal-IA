@@ -13,7 +13,10 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        RedSensorsState red = new RedSensorsState(Integer.parseInt(args[0]), Integer.parseInt(args[1]), 1234, 4321, 2);
+        RedSensorsState red = new RedSensorsState(
+							Integer.parseInt(args[0]),
+							Integer.parseInt(args[1]),
+						 	1234, 4321, 2);
         //tests
         boolean canConnectResult = true;
         for (int i = red.getNcent(); i < red.getnElements(); ++i) {
@@ -32,7 +35,11 @@ public class Main {
         long start = System.currentTimeMillis();
         // Instantiate the search algorithm
         //Search alg = new HillClimbingSearch();
-        Search alg = new SimulatedAnnealingSearch(100000000,1000,50,0.001);
+        Search alg = new SimulatedAnnealingSearch(
+						Integer.parseInt(args[2]),
+						Integer.parseInt(args[3]),
+						Integer.parseInt(args[4]),
+						Double.parseDouble(args[5]));
 
         // Instantiate the SearchAgent object
         SearchAgent agent = new SearchAgent(p, alg);
