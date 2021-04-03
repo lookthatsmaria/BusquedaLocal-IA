@@ -1,3 +1,6 @@
 # Project exclude paths
+*.txt
 *.class
+Main.java
+script
 /out/
